@@ -10,22 +10,25 @@
     "withGlobalTauri": false,
     "windows": [
       {
-        "dragDropEnabled": true,
-        "label":"main",
+        "label": "main",
+        "url": "https://web.whatsapp.com",
         "title": "zap-rs",
         "width": 800,
         "height": 600,
-        "url":"https://web.whatsapp.com/"
+        "resizable": true,
+        "fullscreen": false
       }
-      
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'none'; script-src 'self' https://web.whatsapp.com 'unsafe-inline' 'unsafe-eval'; connect-src https://web.whatsapp.com https://*.whatsapp.net wss://web.whatsapp.com wss://*.whatsapp.net; img-src https: data:; style-src 'self' 'unsafe-inline' https://web.whatsapp.com; font-src https://web.whatsapp.com; frame-src https://web.whatsapp.com; media-src https://web.whatsapp.com;",
+      "pattern": {
+        "use": "brownfield"
+      }
     }
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["deb", "rpm"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -34,9 +37,4 @@
       "icons/icon.ico"
     ]
   }
-  
-
-
 }
-
-
