@@ -1,4 +1,3 @@
-use log::{error, warn};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::Manager;
@@ -8,10 +7,10 @@ fn show_window(app_handle: &tauri::AppHandle) {
     match app_handle.get_webview_window("main") {
         Some(window) => {
             if let Err(e) = window.show() {
-                error!("Failed to show window: {}", e);
+                eprintln!("Failed to show window: {}", e);
             }
         }
-        None => warn!("[main] window not found"),
+        None => eprintln!("[main] window not found"),
     }
 }
 
@@ -19,10 +18,10 @@ fn hide_window(app_handle: &tauri::AppHandle) {
     match app_handle.get_webview_window("main") {
         Some(window) => {
             if let Err(e) = window.hide() {
-                error!("Failed to hide window: {}", e);
+                eprintln!("Failed to hide window: {}", e);
             }
         }
-        None => warn!("[main] window not found"),
+        None => eprintln!("[main] window not found"),
     }
 }
 
@@ -45,7 +44,7 @@ pub fn init_tray(app: &App) -> Result<()> {
             "show" => show_window(app_handle),
             "hide" => hide_window(app_handle),
             "quit" => quit_app(app_handle),
-            other => error!("Unimplemented menu id: {:?}", other),
+            other => eprintln!("Unimplemented menu id: {:?}", other),
         })
         .build(app)?;
 
