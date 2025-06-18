@@ -1,11 +1,8 @@
 [package]
 name = "zap-rs"
 version = "1.0.0"
-description = "Simple whatsapp web wrapper"
-authors = ["JonasAlv"]
+description = "Simple WhatsApp Web wrapper written in rust+tauri"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
 # The `_lib` suffix may seem redundant but it is necessary
@@ -18,11 +15,12 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2.3.0"
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-
+log = "0.4"
+env_logger = "0.11"
 
 
 [profile.dev]
@@ -30,7 +28,7 @@ incremental = true # Compile your binary in smaller steps.
 
 [profile.release]
 codegen-units = 1 # Allows LLVM to perform better optimization.
-lto = true # Enables link-time-optimizations.
-opt-level = "s" # Prioritizes small binary size. Use `3` if you prefer speed.
-panic = "abort" # Higher performance by disabling panic handlers.
-strip = true # Ensures debug symbols are removed.
+lto = true        # Enables link-time-optimizations.
+opt-level = "s"   # Prioritizes small binary size. Use `3` if you prefer speed.
+panic = "abort"   # Higher performance by disabling panic handlers.
+strip = true      # Ensures debug symbols are removed.
