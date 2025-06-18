@@ -1,3 +1,3 @@
 # Zap-rs
 
-Simple minimal Whatsapp Web wrapper written in Rust+tauri
+Simple minimal Whatsapp Web wrapper written in Rust + tauri
