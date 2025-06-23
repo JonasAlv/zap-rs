@@ -6,7 +6,6 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            println!("tray setup");
             tray::init_tray(app)?;
             Ok(())
         })
