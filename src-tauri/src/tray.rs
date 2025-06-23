@@ -9,8 +9,8 @@ fn show_window(app_handle: &tauri::AppHandle) {
 }
 
 fn hide_window(app_handle: &tauri::AppHandle) {
-  let window = app_handle.get_webview_window("main").unwrap();
-  window.hide().unwrap();
+    let window = app_handle.get_webview_window("main").unwrap();
+    window.hide().unwrap();
 }
 
 fn quit_app(app_handle: &tauri::AppHandle) {
