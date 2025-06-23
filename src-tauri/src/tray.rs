@@ -4,25 +4,13 @@ use tauri::Manager;
 use tauri::{App, Result};
 
 fn show_window(app_handle: &tauri::AppHandle) {
-    match app_handle.get_webview_window("main") {
-        Some(window) => {
-            if let Err(e) = window.show() {
-                eprintln!("Failed to show window: {}", e);
-            }
-        }
-        None => eprintln!("[main] window not found"),
-    }
+    let window = app_handle.get_webview_window("main").unwrap();
+    window.show().unwrap();
 }
 
 fn hide_window(app_handle: &tauri::AppHandle) {
-    match app_handle.get_webview_window("main") {
-        Some(window) => {
-            if let Err(e) = window.hide() {
-                eprintln!("Failed to hide window: {}", e);
-            }
-        }
-        None => eprintln!("[main] window not found"),
-    }
+  let window = app_handle.get_webview_window("main").unwrap();
+  window.hide().unwrap();
 }
 
 fn quit_app(app_handle: &tauri::AppHandle) {
