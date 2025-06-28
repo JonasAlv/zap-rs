@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "zap-rs",
   "version": "1.0.0",
-  "identifier": "com.zap-rs.app",
+  "identifier": "com.zap-rs.data",
   "build": {
     "frontendDist": null
   },
@@ -12,6 +12,7 @@
       {
         "label": "main",
         "center": true,
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
         "url": "https://web.whatsapp.com",
         "title": "zap-rs",
         "width": 1200,

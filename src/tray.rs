@@ -1,38 +1,70 @@
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::Manager;
-use tauri::{App, Result};
+use tauri::{App, Manager, Result};
 
-fn show_window(app_handle: &tauri::AppHandle) {
-    let window = app_handle.get_webview_window("main").unwrap();
-    window.show().unwrap();
+fn show_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
+    if let Some(window) = app_handle.get_webview_window("main") {
+        window.show()?;
+    } else {
+        eprintln!("Window 'main' not found when trying to show.");
+    }
+    Ok(())
 }
 
-fn hide_window(app_handle: &tauri::AppHandle) {
-    let window = app_handle.get_webview_window("main").unwrap();
-    window.hide().unwrap();
+fn hide_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
+    if let Some(window) = app_handle.get_webview_window("main") {
+        window.hide()?;
+    } else {
+        eprintln!("Window 'main' not found when trying to hide.");
+    }
+    Ok(())
 }
 
-fn quit_app(app_handle: &tauri::AppHandle) {
+fn toggle_window<R: tauri::Runtime>(
+    app_handle: &tauri::AppHandle<R>,
+    toggle_item: &MenuItem<R>,
+) -> Result<()> {
+    if let Some(window) = app_handle.get_webview_window("main") {
+        if window.is_visible()? {
+            hide_window(app_handle)?;
+            toggle_item.set_text("Show")?;
+        } else {
+            show_window(app_handle)?;
+            toggle_item.set_text("Hide")?;
+        }
+    } else {
+        eprintln!("Window 'main' not found when toggling.");
+    }
+    Ok(())
+}
+
+fn quit_app<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) {
     app_handle.exit(0);
 }
 
-pub fn init_tray(app: &App) -> Result<()> {
-    let show_i = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
-    let hide_i = MenuItem::with_id(app, "hide", "Hide", true, None::<&str>)?;
-    let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+pub fn init_tray<R: tauri::Runtime>(app: &App<R>) -> Result<()> {
+    let toggle_item = MenuItem::with_id(app, "toggle", "Hide", true, None::<&str>)?;
+    let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
 
-    let menu = Menu::with_items(app, &[&show_i, &hide_i, &quit_i])?;
+    let menu = Menu::with_items(app, &[&toggle_item, &quit_item])?;
 
-    let _tray = TrayIconBuilder::new()
+    TrayIconBuilder::new()
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
         .show_menu_on_left_click(true)
-        .on_menu_event(|app_handle, event| match event.id.as_ref() {
-            "show" => show_window(app_handle),
-            "hide" => hide_window(app_handle),
-            "quit" => quit_app(app_handle),
-            other => eprintln!("Unimplemented menu id: {:?}", other),
+        .on_menu_event({
+            let toggle_item = toggle_item.clone();
+            move |app_handle, event| {
+                match event.id.as_ref() {
+                    "toggle" => {
+                        if let Err(e) = toggle_window(app_handle, &toggle_item) {
+                            eprintln!("Error toggling window: {e}");
+                        }
+                    }
+                    "quit" => quit_app(app_handle),
+                    other => eprintln!("Unknown menu id: {other}"),
+                }
+            }
         })
         .build(app)?;
 
