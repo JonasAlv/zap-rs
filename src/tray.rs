@@ -7,7 +7,7 @@ fn show_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()
     if let Some(window) = app_handle.get_webview_window("main") {
         window.show()?;
     } else {
-        eprintln!("Window 'main' not found when trying to show.");
+        eprintln!("Window [main] not found when trying [show_window()].");
     }
     Ok(())
 }
@@ -16,7 +16,7 @@ fn hide_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()
     if let Some(window) = app_handle.get_webview_window("main") {
         window.hide()?;
     } else {
-        eprintln!("Window 'main' not found when trying to hide.");
+        eprintln!("Window [main] not found when trying [hide_window()].");
     }
     Ok(())
 }
@@ -34,7 +34,7 @@ fn toggle_window<R: tauri::Runtime>(
             toggle_item.set_text("Hide")?;
         }
     } else {
-        eprintln!("Window 'main' not found when toggling.");
+        eprintln!("Window [main] not found when trying [toggle_window()]");
     }
     Ok(())
 }
@@ -52,21 +52,19 @@ pub fn init_tray<R: tauri::Runtime>(app: &App<R>) -> Result<()> {
     TrayIconBuilder::new()
         .icon(Image::from_bytes(include_bytes!("../icons/tray_64x64.png")).unwrap())
         .menu(&menu)
-        .show_menu_on_left_click(true)
         .on_menu_event({
-            let toggle_item = toggle_item.clone();
-            move |app_handle, event| {
-                match event.id.as_ref() {
-                    "toggle" => {
-                        if let Err(e) = toggle_window(app_handle, &toggle_item) {
-                            eprintln!("Error toggling window: {e}");
-                        }
-                    }
-                    "quit" => quit_app(app_handle),
-                    other => eprintln!("Unknown menu id: {other}"),
+            let toggle_item = toggle_item.clone(); 
+            move |app_handle, event| match event.id.as_ref() { 
+                "toggle" => {
+                    let _ = toggle_window(app_handle, &toggle_item); 
+                },
+                "quit" => quit_app(app_handle),
+                _ => {
+                    eprintln!("menu item {:?} not handled", event.id);
                 }
             }
         })
+        
         .build(app)?;
 
     Ok(())
