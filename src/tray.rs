@@ -1,6 +1,7 @@
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{App, Manager, Result};
+use tauri::image::Image;
 
 fn show_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
     if let Some(window) = app_handle.get_webview_window("main") {
@@ -49,7 +50,7 @@ pub fn init_tray<R: tauri::Runtime>(app: &App<R>) -> Result<()> {
     let menu = Menu::with_items(app, &[&toggle_item, &quit_item])?;
 
     TrayIconBuilder::new()
-        .icon(app.default_window_icon().unwrap().clone())
+        .icon(Image::from_bytes(include_bytes!("../icons/tray_64x64.png")).unwrap())
         .menu(&menu)
         .show_menu_on_left_click(true)
         .on_menu_event({
