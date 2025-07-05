@@ -39,8 +39,9 @@ fn toggle_window<R: tauri::Runtime>(
     Ok(())
 }
 
-fn quit_app<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) {
+fn quit_app<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
     app_handle.exit(0);
+    Ok(())
 }
 
 pub fn init_tray<R: tauri::Runtime>(app: &App<R>) -> Result<()> {
@@ -50,21 +51,22 @@ pub fn init_tray<R: tauri::Runtime>(app: &App<R>) -> Result<()> {
     let menu = Menu::with_items(app, &[&toggle_item, &quit_item])?;
 
     TrayIconBuilder::new()
-        .icon(Image::from_bytes(include_bytes!("../icons/tray_64x64.png")).unwrap())
+        .icon(Image::from_bytes(include_bytes!("../icons/tray_64x64.png")).expect("Failed to load tray icon"))
         .menu(&menu)
         .on_menu_event({
-            let toggle_item = toggle_item.clone(); 
-            move |app_handle, event| match event.id.as_ref() { 
+            let toggle_item = toggle_item.clone();
+            move |app_handle, event| match event.id.as_ref() {
                 "toggle" => {
-                    let _ = toggle_window(app_handle, &toggle_item); 
-                },
-                "quit" => quit_app(app_handle),
+                    let _ = toggle_window(app_handle, &toggle_item);
+                }
+                "quit" => {
+                    let _ = quit_app(app_handle);
+                }
                 _ => {
                     eprintln!("menu item {:?} not handled", event.id);
                 }
-            }
+            }       
         })
-        
         .build(app)?;
 
     Ok(())
