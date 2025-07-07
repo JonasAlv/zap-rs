@@ -3,46 +3,41 @@ use tauri::tray::{TrayIconBuilder, TrayIconEvent, MouseButton, MouseButtonState}
 use tauri::{App, Manager, Result};
 use tauri::image::Image;
 
-fn show_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
-    if let Some(window) = app_handle.get_webview_window("main") {
+fn select_main_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<tauri::WebviewWindow<R>> {
+    app_handle
+        .get_webview_window("main")
+        .ok_or_else(|| tauri::Error::WebviewNotFound) 
+}
+
+//saved for future use
+// fn show_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
+//     let window = select_main_window(app_handle)?;
+//     window.show()?;
+//     window.set_focus()?;
+//     Ok(())
+// }
+
+// fn hide_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
+//     let window = select_main_window(app_handle)?;
+//     window.hide()?;
+//     Ok(())
+// }
+
+fn toggle_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>, toggle_item: &MenuItem<R>) -> Result<()> {
+    let window = select_main_window(app_handle)?;
+    if window.is_visible()? {
+        window.hide()?;
+        toggle_item.set_text("Show")?;
+    } else {
         window.show()?;
         window.set_focus()?;
-    } else {
-        eprintln!("Window [main] not found when trying [show_window()].");
+        toggle_item.set_text("Hide")?;
     }
     Ok(())
 }
 
-fn hide_window<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
-    if let Some(window) = app_handle.get_webview_window("main") {
-        window.hide()?;
-    } else {
-        eprintln!("Window [main] not found when trying [hide_window()].");
-    }
-    Ok(())
-}
-
-fn toggle_window<R: tauri::Runtime>(
-    app_handle: &tauri::AppHandle<R>,
-    toggle_item: &MenuItem<R>,
-) -> Result<()> {
-    if let Some(window) = app_handle.get_webview_window("main") {
-        if window.is_visible()? {
-            hide_window(app_handle)?;
-            toggle_item.set_text("Show")?;
-        } else {
-            show_window(app_handle)?;
-            toggle_item.set_text("Hide")?;
-        }
-    } else {
-        eprintln!("Window [main] not found when trying [toggle_window()]");
-    }
-    Ok(())
-}
-
-fn quit_app<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<()> {
+fn quit_app<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) {
     app_handle.exit(0);
-    Ok(())
 }
 
 pub fn init_tray<R: tauri::Runtime>(app: &App<R>) -> Result<()> {
@@ -63,7 +58,7 @@ pub fn init_tray<R: tauri::Runtime>(app: &App<R>) -> Result<()> {
                 let _ = toggle_window(app_handle, &toggle_item_clone_for_menu);
             }
             "quit" => {
-                let _ = quit_app(app_handle);
+                quit_app(app_handle);
             }
             _ => {
                 eprintln!("menu item {:?} not handled", event.id);
